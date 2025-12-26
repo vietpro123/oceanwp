@@ -1120,16 +1120,28 @@ if ( ! class_exists( 'OceanWP_WooCommerce_Config' ) ) {
 		 * @since 1.0.0
 		 */
 		public static function loop_shop_per_page() {
-			if ( get_theme_mod( 'ocean_woo_shop_result_count', true ) ) {
-				$posts_per_page = ( isset( $_GET['products-per-page'] ) ) ? sanitize_text_field( wp_unslash( $_GET['products-per-page'] ) ) : get_theme_mod( 'ocean_woo_shop_posts_per_page', 12 );
 
-				if ( $posts_per_page == 'all' ) {
+			$default_count = absint(get_theme_mod( 'ocean_woo_shop_posts_per_page', 12 ));
+			$max_cap = absint(get_theme_mod('ocean_woo_shop_result_count_max_cap', 36 ));
+
+			$posts_per_page = $default_count;
+
+			if ( get_theme_mod( 'ocean_woo_shop_result_count', true ) && isset( $_GET['products-per-page'] ) ) {
+
+				$requested = sanitize_text_field( wp_unslash( $_GET['products-per-page'] ) );
+
+				if ( $requested == 'all' ) {
 					$posts_per_page = wp_count_posts( 'product' )->publish;
+					if ( $posts_per_page > $max_cap ) {
+						$posts_per_page = $max_cap;
+					}
+				}  elseif ( is_numeric( $requested ) ) {
+					$posts_per_page = min( absint( $requested ), $max_cap );
 				}
 			} else {
-				$posts_per_page = get_theme_mod( 'ocean_woo_shop_posts_per_page' );
-				$posts_per_page = $posts_per_page ? $posts_per_page : 12;
+				$posts_per_page = $default_count;
 			}
+
 			return $posts_per_page;
 		}
 
