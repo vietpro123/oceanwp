@@ -4697,6 +4697,7 @@ $options = [
 
 					'ocean_woo_shop_result_count_max_cap' => [
 						'label'    => esc_html__( 'Shop Result Count Max Cap', 'oceanwp' ),
+						'desc'     => __('Limits the number of products shown per page when the "All" display option is active. Use this to maintain fast performance and prevent high server load on large shops. We recommend a value of 100 or lower.', 'oceanwp'),
 						'type'     => 'ocean-range-slider',
 						'section'  => 'ocean_woocommerce_archives_toolbar_section',
 						'transport' => 'refresh',
