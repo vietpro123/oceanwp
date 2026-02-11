@@ -1124,6 +1124,12 @@ if ( ! class_exists( 'OceanWP_WooCommerce_Config' ) ) {
 			$default_count = absint(get_theme_mod( 'ocean_woo_shop_posts_per_page', 12 ));
 			$max_cap       = oceanwp_get_shop_result_max_cap();
 
+			$shop_columns = absint( get_theme_mod( 'ocean_woocommerce_shop_columns', 3 ) );
+
+			if ( $max_cap < $shop_columns ) {
+				$max_cap = $shop_columns;
+			}
+
 			$posts_per_page = $default_count;
 
 			if ( get_theme_mod( 'ocean_woo_shop_result_count', true ) && isset( $_GET['products-per-page'] ) ) {
@@ -1136,7 +1142,17 @@ if ( ! class_exists( 'OceanWP_WooCommerce_Config' ) ) {
 						$posts_per_page = $max_cap;
 					}
 				}  elseif ( is_numeric( $requested ) ) {
-					$posts_per_page = min( absint( $requested ), $max_cap );
+					$requested = absint( $requested );
+
+					$max_cap = max( $max_cap, $default_count );
+
+					$allowed_x2 = $default_count * 2;
+
+					if ( $requested === $allowed_x2 ) {
+						$posts_per_page = $allowed_x2;
+					} else {
+						$posts_per_page = min( $requested, $max_cap );
+					}
 				}
 			} else {
 				$posts_per_page = $default_count;
