@@ -14,9 +14,8 @@ if ( is_single() || ! have_posts() ) {
 	return;
 }
 
-$products_per_page = get_theme_mod( 'ocean_woo_shop_posts_per_page', '12' );
-
-$max_cap = absint(get_theme_mod('ocean_woo_shop_result_count_max_cap', 36 ));
+$products_per_page = get_theme_mod( 'ocean_woo_shop_posts_per_page', 12 );
+$max_cap           = oceanwp_get_shop_result_max_cap();
 
 $num_prod = 0;
 $requested_view = '';

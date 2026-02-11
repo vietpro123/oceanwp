@@ -1122,7 +1122,7 @@ if ( ! class_exists( 'OceanWP_WooCommerce_Config' ) ) {
 		public static function loop_shop_per_page() {
 
 			$default_count = absint(get_theme_mod( 'ocean_woo_shop_posts_per_page', 12 ));
-			$max_cap = absint(get_theme_mod('ocean_woo_shop_result_count_max_cap', 36 ));
+			$max_cap       = oceanwp_get_shop_result_max_cap();
 
 			$posts_per_page = $default_count;
 
