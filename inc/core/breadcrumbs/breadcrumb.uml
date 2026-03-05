@@ -1,68 +1,88 @@
 classDiagram
     class OceanWP_Breadcrumbs_Manager {
-        -args: array
-        -items: array
-        -provider: Abstract_Provider
-        +__construct(args)
-        +init()
-        -detect_context()
-        +get_items()
+        -cached_crumbs: array
+        +instance()$ OceanWP_Breadcrumbs_Manager
+        +get_breadcrumbs(args) string
+        -includes()
+        -determine_provider(args)
+        -get_labels(custom_labels)
+        -get_home_crumbs(args)
+    }
+
+    class OceanWP_Breadcrumbs_Compatibility {
+        +instance()$ OceanWP_Breadcrumbs_Compatibility
+        +get_external_breadcrumbs() string|null
+        +get_sources(options) array
+        +sp_before()
+        +sp_after()
+        +rm_args(args)
+        +woo_defaults(args)
     }
 
     class OceanWP_Breadcrumbs_Crumb {
         +label: string
         +url: string
         +is_last: bool
-        +schema_data: array
         +__construct(label, url, is_last)
     }
 
     class OceanWP_Breadcrumbs_Renderer {
-        -items: array
+        -crumbs: array
         -args: array
-        +__construct(items, args)
-        +render_html()
-        -generate_schema()
+        +__construct(crumbs, args)
+        +render() string
     }
 
-    class OceanWP_Breadcrumbs_Abstract_Provider {
+    class OceanWP_Breadcrumbs_Provider_Abstract {
         <<abstract>>
+        #crumbs: array
         #args: array
         +get_items()* array
-        #get_home_item()
-        #get_post_ancestors(id)
+        #add_crumb(label, url, is_last)
+        #add_term_parents(term_id, taxonomy)
+        #add_post_terms(post_id, taxonomy)
     }
 
-    class Post_Provider {
+    class OceanWP_Breadcrumbs_Singular_Provider {
         +get_items()
     }
 
-    class Taxonomy_Provider {
+    class OceanWP_Breadcrumbs_WooCommerce_Provider {
+        +get_items()
+        #add_shop_link()
+    }
+
+    class OceanWP_Breadcrumbs_Archive_Provider {
         +get_items()
     }
 
-    class WooCommerce_Provider {
+    class OceanWP_Breadcrumbs_Search_Provider {
         +get_items()
     }
 
-    class Search_404_Provider {
+    class OceanWP_Breadcrumbs_404_Provider {
         +get_items()
     }
 
     %% Relationships
-    OceanWP_Breadcrumbs_Manager ..> OceanWP_Breadcrumbs_Abstract_Provider : "delegates to"
-    OceanWP_Breadcrumbs_Abstract_Provider <|-- Post_Provider
-    OceanWP_Breadcrumbs_Abstract_Provider <|-- Taxonomy_Provider
-    OceanWP_Breadcrumbs_Abstract_Provider <|-- WooCommerce_Provider
-    OceanWP_Breadcrumbs_Abstract_Provider <|-- Search_404_Provider
+    OceanWP_Breadcrumbs_Manager ..> OceanWP_Breadcrumbs_Compatibility : "checks for SEO plugins"
+    OceanWP_Breadcrumbs_Manager ..> OceanWP_Breadcrumbs_Provider_Abstract : "selects context provider"
     
-    OceanWP_Breadcrumbs_Abstract_Provider ..> OceanWP_Breadcrumbs_Crumb : "creates"
-    OceanWP_Breadcrumbs_Manager ..> OceanWP_Breadcrumbs_Renderer : "passes items to"
+    OceanWP_Breadcrumbs_Provider_Abstract <|-- OceanWP_Breadcrumbs_Singular_Provider
+    OceanWP_Breadcrumbs_Provider_Abstract <|-- OceanWP_Breadcrumbs_WooCommerce_Provider
+    OceanWP_Breadcrumbs_Provider_Abstract <|-- OceanWP_Breadcrumbs_Archive_Provider
+    OceanWP_Breadcrumbs_Provider_Abstract <|-- OceanWP_Breadcrumbs_Search_Provider
+    OceanWP_Breadcrumbs_Provider_Abstract <|-- OceanWP_Breadcrumbs_404_Provider
+    
+    OceanWP_Breadcrumbs_Provider_Abstract ..> OceanWP_Breadcrumbs_Crumb : "instantiates"
+    OceanWP_Breadcrumbs_Manager ..> OceanWP_Breadcrumbs_Renderer : "passes crumbs to"
+    OceanWP_Breadcrumbs_Renderer ..> OceanWP_Breadcrumbs_Crumb : "processes"
 
-    %% Legacy Wrapper
+    %% Gateway
     class OceanWP_Breadcrumb_Trail {
-        <<legacy>>
-        +__construct()
-        +display()
+        <<legacy shim>>
+        +__construct(args)
+        +trail()
+        +get_trail()
     }
-    OceanWP_Breadcrumb_Trail ..> OceanWP_Breadcrumbs_Manager : "wraps"
+    OceanWP_Breadcrumb_Trail ..> OceanWP_Breadcrumbs_Manager : "calls"
